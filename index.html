@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JGM Money Transfer - Modern Intelligent Banking</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-background">
+            <div class="bg-blur-circle circle-1"></div>
+            <div class="bg-blur-circle circle-2"></div>
+        </div>
+        <div class="login-card-container">
+            <div class="login-header">
+                <div class="brand-logo-large">
+                    <div class="logo-icon"><i class="fa-solid fa-vault"></i></div>
+                    <div class="logo-text">JGM <span>Money</span></div>
+                </div>
+                <h2>Secure Banking Portal</h2>
+                <p>Manage your transfers, UPI payments & business transactions seamlessly</p>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="input-group">
+                    <label for="login-email"><i class="fa-regular fa-envelope"></i> Email or Mobile Number</label>
+                    <input type="text" id="login-email" placeholder="e.g. agneay@jgmbank.com" value="agneay@jgmbank.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password"><i class="fa-solid fa-lock"></i> Security Password / PIN</label>
+                    <input type="password" id="login-password" placeholder="••••••••" value="123456" required>
+                </div>
+                <div class="form-actions-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me" checked> Remember Device
+                    </label>
+                    <a href="#" class="forgot-link" onclick="event.preventDefault(); alert('Demo password is: 123456');">Forgot PIN?</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                    <span>Sign In to Portal</span>
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+            </form>
+
+            <div class="login-quick-demo">
+                <p>Quick Access Demo Accounts:</p>
+                <div class="demo-chips">
+                    <button class="chip-btn" onclick="quickLogin('agneay@jgmbank.com', '123456')">
+                        <i class="fa-solid fa-user-check"></i> Agneay (Personal)
+                    </button>
+                    <button class="chip-btn" onclick="quickLogin('business@jgm.com', '123456')">
+                        <i class="fa-solid fa-briefcase"></i> JGM Enterprise
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP SHELL -->
+    <div id="app-shell" class="app-shell hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <div class="logo-icon"><i class="fa-solid fa-vault"></i></div>
+                    <div class="logo-text">JGM <span>Money</span></div>
+                </div>
+                <button id="sidebar-close-btn" class="icon-btn mobile-only"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="user-quick-card">
+                <div class="avatar">AG</div>
+                <div class="user-info">
+                    <span class="user-name" id="user-display-name">Agneay s</span>
+                    <span class="user-vpa" id="user-display-vpa">6282695019@fam</span>
+                </div>
+                <span class="status-dot online"></span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-view="dashboard">
+                        <a href="#"><i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="nav-item" data-view="send">
+                        <a href="#"><i class="fa-solid fa-paper-plane"></i> <span>Send / Pay Money</span></a>
+                    </li>
+                    <li class="nav-item" data-view="add-transaction">
+                        <a href="#"><i class="fa-solid fa-circle-plus"></i> <span>Add Transaction</span></a>
+                    </li>
+                    <li class="nav-item" data-view="history">
+                        <a href="#"><i class="fa-solid fa-receipt"></i> <span>Transaction History</span></a>
+                    </li>
+                    <li class="nav-item" data-view="qr">
+                        <a href="#"><i class="fa-solid fa-qrcode"></i> <span>QR Pay Studio</span></a>
+                    </li>
+                    <li class="nav-item" data-view="analytics">
+                        <a href="#"><i class="fa-solid fa-chart-line"></i> <span>Analytics</span></a>
+                    </li>
+                    <li class="nav-item" data-view="settings">
+                        <a href="#"><i class="fa-solid fa-sliders"></i> <span>Settings</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn btn-outline btn-block">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="sidebar-toggle-btn" class="icon-btn sidebar-toggle">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="page-title-group">
+                        <h1 id="page-title">Dashboard</h1>
+                        <span id="page-subtitle" class="subtitle">Overview of your financial ecosystem</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="balance-pill">
+                        <span class="pill-label">Total Balance</span>
+                        <span class="pill-amount" id="topbar-balance">₹0.00</span>
+                    </div>
+
+                    <div class="quick-actions-bar">
+                        <button class="btn btn-accent btn-sm" onclick="switchView('send')">
+                            <i class="fa-solid fa-bolt"></i> Quick Pay
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="switchView('qr')">
+                            <i class="fa-solid fa-qrcode"></i> Scan QR
+                        </button>
+                    </div>
+
+                    <div class="topbar-icons">
+                        <button class="icon-btn relative" title="Notifications" onclick="toggleNotifications()">
+                            <i class="fa-regular fa-bell"></i>
+                            <span class="badge-dot"></span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Notifications Drawer -->
+            <div id="notifications-popup" class="notifications-popup hidden">
+                <div class="popup-header">
+                    <h3>Notifications</h3>
+                    <span class="badge">0 New</span>
+                </div>
+                <div class="popup-body">
+                    <div class="notification-item">
+                        <i class="fa-solid fa-circle-check icon-success"></i>
+                        <div class="noti-content">
+                            <p>Account initialized successfully</p>
+                            <span class="noti-time">Just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 1: DASHBOARD -->
+            <section id="view-dashboard" class="view-section active">
+                <!-- Stat Cards Row -->
+                <div class="stats-grid">
+                    <div class="stat-card balance-card">
+                        <div class="card-bg-glow"></div>
+                        <div class="card-header">
+                            <span>Available Balance</span>
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div class="card-value" id="dash-main-balance">₹0.00</div>
+                        <div class="card-footer">
+                            <span class="trend neutral"><i class="fa-solid fa-minus"></i> 0.0%</span>
+                            <span class="meta-info">Acct: •••• 8842</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="card-header">
+                            <span>Monthly Inflow</span>
+                            <div class="icon-bubble green"><i class="fa-solid fa-arrow-down-left"></i></div>
+                        </div>
+                        <div class="card-value" id="dash-inflow">₹0.00</div>
+                        <div class="card-footer">
+                            <span class="trend neutral"><i class="fa-solid fa-minus"></i> 0 Transactions</span>
+                            <span class="meta-info">This Month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="card-header">
+                            <span>Monthly Outflow</span>
+                            <div class="icon-bubble red"><i class="fa-solid fa-arrow-up-right"></i></div>
+                        </div>
+                        <div class="card-value" id="dash-outflow">₹0.00</div>
+                        <div class="card-footer">
+                            <span class="trend neutral"><i class="fa-solid fa-minus"></i> 0 Transactions</span>
+                            <span class="meta-info">This Month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="card-header">
+                            <span>UPI Virtual ID</span>
+                            <div class="icon-bubble blue"><i class="fa-solid fa-qrcode"></i></div>
+                        </div>
+                        <div class="card-value vpa-text" id="dash-vpa">6282695019@fam</div>
+                        <div class="card-footer">
+                            <button class="btn-link" onclick="copyUPIHandle('6282695019@fam')">
+                                <i class="fa-regular fa-copy"></i> Copy UPI ID
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Payees Row -->
+                <div class="dashboard-block">
+                    <div class="block-header">
+                        <h3><i class="fa-solid fa-users"></i> Frequent Payees</h3>
+                        <button class="btn btn-text" onclick="switchView('send')">View All Payees <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="payees-scroll-container">
+                        <div class="payee-avatar-btn" onclick="prefillPayee('Agneay s', '6282695019@fam', '6282695019')">
+                            <div class="avatar-circle green">AS</div>
+                            <span>Agneay s</span>
+                        </div>
+                        <div class="payee-avatar-btn" onclick="prefillPayee('Adwaith S', 'sudheerkumar1808-1@okhdfcbank', '')">
+                            <div class="avatar-circle blue">AS</div>
+                            <span>Adwaith S. (HDFC)</span>
+                        </div>
+                        <div class="payee-avatar-btn" onclick="prefillPayee('Rahul Sharma', 'rahul@upi', '9876543210')">
+                            <div class="avatar-circle">RS</div>
+                            <span>Rahul S.</span>
+                        </div>
+                        <div class="payee-avatar-btn" onclick="prefillPayee('Priya Verma', 'priya@okicici', '9812345678')">
+                            <div class="avatar-circle purple">PV</div>
+                            <span>Priya V.</span>
+                        </div>
+                        <div class="payee-avatar-btn" onclick="prefillPayee('Amit Kumar', 'amit@ybl', '9988776655')">
+                            <div class="avatar-circle teal">AK</div>
+                            <span>Amit K.</span>
+                        </div>
+                        <div class="payee-avatar-btn" onclick="prefillPayee('TechSolutions Ltd', 'tech@jgmbank', '9000011122')">
+                            <div class="avatar-circle orange">TS</div>
+                            <span>Tech Solutions</span>
+                        </div>
+                        <div class="payee-avatar-btn" onclick="prefillPayee('Swiggy Pay', 'swiggy@icici', '9112233445')">
+                            <div class="avatar-circle red">SP</div>
+                            <span>Swiggy Pay</span>
+                        </div>
+                        <div class="payee-avatar-btn add-new" onclick="switchView('send')">
+                            <div class="avatar-circle border-dashed"><i class="fa-solid fa-plus"></i></div>
+                            <span>New Payee</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart & Recent Activity Grid -->
+                <div class="dashboard-grid-2col">
+                    <div class="glass-card chart-card">
+                        <div class="card-title-row">
+                            <h3><i class="fa-solid fa-chart-column"></i> Cash Flow Analytics</h3>
+                            <div class="select-wrapper">
+                                <select id="chart-timeframe" onchange="updateDashboardChart()">
+                                    <option value="7">Last 7 Days</option>
+                                    <option value="30" selected>Last 30 Days</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="cashflowChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card recent-tx-card">
+                        <div class="card-title-row">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h3>
+                            <button class="btn btn-text" onclick="switchView('history')">Full History <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        <div class="recent-list" id="dashboard-recent-list">
+                            <!-- Populated via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2 & 3: SEND MONEY & ADD TRANSACTION -->
+            <section id="view-send" class="view-section">
+                <div class="transfer-container">
+                    <div class="glass-card transfer-card">
+                        <div class="transfer-tabs">
+                            <button class="tab-btn active" data-tab="upi" onclick="switchTransferTab('upi')">
+                                <i class="fa-solid fa-bolt"></i> UPI Transfer
+                            </button>
+                            <button class="tab-btn" data-tab="bank" onclick="switchTransferTab('bank')">
+                                <i class="fa-solid fa-building-columns"></i> Bank Account (IMPS/NEFT)
+                            </button>
+                            <button class="tab-btn" data-tab="wallet" onclick="switchTransferTab('wallet')">
+                                <i class="fa-solid fa-wallet"></i> JGM Wallet
+                            </button>
+                        </div>
+
+                        <form id="transfer-form" onsubmit="handleTransferSubmit(event)">
+                            <div class="form-section">
+                                <h4 class="section-heading"><span class="step-num">1</span> Recipient Information</h4>
+                                
+                                <div class="grid-2col">
+                                    <div class="input-group">
+                                        <label for="recipient-name">Customer / Recipient Name <span class="required">*</span></label>
+                                        <div class="input-with-icon">
+                                            <i class="fa-solid fa-user"></i>
+                                            <input type="text" id="recipient-name" placeholder="e.g. Rahul Sharma" required>
+                                        </div>
+                                    </div>
+
+                                    <div id="upi-field-group" class="input-group">
+                                        <label for="recipient-vpa">UPI ID / VPA handle <span class="required">*</span></label>
+                                        <div class="input-with-icon">
+                                            <i class="fa-solid fa-at"></i>
+                                            <input type="text" id="recipient-vpa" placeholder="e.g. rahul@jgmbank or rahul@upi">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="bank-field-group" class="grid-2col hidden">
+                                    <div class="input-group">
+                                        <label for="recipient-account">Bank Account Number</label>
+                                        <div class="input-with-icon">
+                                            <i class="fa-solid fa-hashtag"></i>
+                                            <input type="text" id="recipient-account" placeholder="e.g. 5010023491823">
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="recipient-ifsc">Bank IFSC Code</label>
+                                        <div class="input-with-icon">
+                                            <i class="fa-solid fa-building"></i>
+                                            <input type="text" id="recipient-ifsc" placeholder="e.g. JGM0001024" value="JGM0001024">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4 class="section-heading"><span class="step-num">2</span> Amount & Purpose</h4>
+                                
+                                <div class="amount-entry-box">
+                                    <span class="currency-symbol">₹</span>
+                                    <input type="number" id="transfer-amount" placeholder="0.00" min="1" max="100000" step="any" required oninput="updateAmountInWords()">
+                                </div>
+                                <div id="amount-words" class="amount-words-text">Zero Rupees</div>
+
+                                <!-- Preset Amount Chips -->
+                                <div class="preset-chips">
+                                    <span class="chips-label">Quick Amounts:</span>
+                                    <button type="button" class="chip" onclick="setPresetAmount(500)">+ ₹500</button>
+                                    <button type="button" class="chip" onclick="setPresetAmount(1000)">+ ₹1,000</button>
+                                    <button type="button" class="chip" onclick="setPresetAmount(2000)">+ ₹2,000</button>
+                                    <button type="button" class="chip" onclick="setPresetAmount(5000)">+ ₹5,000</button>
+                                    <button type="button" class="chip" onclick="setPresetAmount(10000)">+ ₹10,000</button>
+                                </div>
+
+                                <div class="input-group mt-15">
+                                    <label for="transfer-note">Payment Note / Description (Optional)</label>
+                                    <div class="input-with-icon">
+                                        <i class="fa-solid fa-comment-dots"></i>
+                                        <input type="text" id="transfer-note" placeholder="e.g. Project Payment, Dinner Split, Rent">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="transfer-summary-box">
+                                <div class="summary-row">
+                                    <span>Payment Mode:</span>
+                                    <strong id="summary-mode">UPI Instant Transfer</strong>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Processing Fee:</span>
+                                    <strong class="text-green">₹0.00 (Free)</strong>
+                                </div>
+                                <div class="summary-row total-row">
+                                    <span>Total Payable:</span>
+                                    <strong id="summary-total-payable">₹0.00</strong>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block btn-xl mt-20">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>Pay Now via UPI</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: TRANSACTION HISTORY -->
+            <section id="view-history" class="view-section">
+                <div class="history-controls-card glass-card">
+                    <div class="controls-top-row">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="history-search" placeholder="Search by recipient name, reference ID, or UPI ID..." oninput="filterTransactions()">
+                        </div>
+
+                        <div class="filter-actions">
+                            <div class="select-wrapper">
+                                <select id="history-status-filter" onchange="filterTransactions()">
+                                    <option value="all">All Statuses</option>
+                                    <option value="Success">Success</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Failed">Failed</option>
+                                </select>
+                            </div>
+                            <div class="select-wrapper">
+                                <select id="history-mode-filter" onchange="filterTransactions()">
+                                    <option value="all">All Payment Modes</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="IMPS">Bank Transfer (IMPS)</option>
+                                    <option value="Wallet">Wallet</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-outline" onclick="exportTransactionsCSV()">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card table-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction Ref</th>
+                                    <th>Date & Time</th>
+                                    <th>Recipient / Customer</th>
+                                    <th>Mode</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-table-body">
+                                <!-- Populated dynamically by app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="table-empty-state" class="empty-state hidden">
+                        <i class="fa-solid fa-receipt"></i>
+                        <p>No transactions match your search filter</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: QR PAY STUDIO -->
+            <section id="view-qr" class="view-section">
+                <div class="qr-studio-grid">
+                    <!-- Left: Dynamic QR Generator -->
+                    <div class="glass-card qr-card">
+                        <div class="card-title-row">
+                            <h3><i class="fa-solid fa-qrcode"></i> Generate UPI QR Code</h3>
+                            <span class="badge blue">Live Generator</span>
+                        </div>
+                        <p class="section-desc">Create custom scannable UPI QR codes with payee details & custom amounts.</p>
+
+                        <!-- Saved QR Profiles Selector -->
+                        <div class="preset-chips mb-15">
+                            <span class="chips-label">Select QR Profile:</span>
+                            <button type="button" class="chip" onclick="loadQRProfile('Adwaith S', 'sudheerkumar1808-1@okhdfcbank', 'GPay HDFC')">
+                                <i class="fa-brands fa-google-pay"></i> Adwaith S (okhdfcbank)
+                            </button>
+                            <button type="button" class="chip" onclick="loadQRProfile('Agneay s', '6282695019@fam', 'FamApp')">
+                                <i class="fa-solid fa-qrcode"></i> Agneay s (fam)
+                            </button>
+                            <button type="button" class="chip" onclick="loadQRProfile('Adwaith S', 'sudheerkumar1808-3@okicici', 'GPay ICICI')">
+                                <i class="fa-brands fa-google-pay"></i> Adwaith S (okicici)
+                            </button>
+                        </div>
+
+                        <div class="qr-form-inputs">
+                            <div class="input-group">
+                                <label for="qr-payee-name">Payee Business / Merchant Name</label>
+                                <input type="text" id="qr-payee-name" value="Adwaith S" oninput="generateDynamicQR()">
+                            </div>
+                            <div class="input-group">
+                                <label for="qr-vpa">Target UPI VPA ID</label>
+                                <input type="text" id="qr-vpa" value="sudheerkumar1808-1@okhdfcbank" oninput="generateDynamicQR()">
+                            </div>
+                            <div class="grid-2col">
+                                <div class="input-group">
+                                    <label for="qr-amount">Fixed Amount (₹)</label>
+                                    <input type="number" id="qr-amount" placeholder="Optional" oninput="generateDynamicQR()">
+                                </div>
+                                <div class="input-group">
+                                    <label for="qr-note">Note / Reference</label>
+                                    <input type="text" id="qr-note" value="Payment to Adwaith S" oninput="generateDynamicQR()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="qr-display-box">
+                            <div id="qrcode-container" class="qrcode-canvas-wrapper"></div>
+                            <div class="upi-string-preview">
+                                <span id="upi-deep-link">upi://pay?pa=sudheerkumar1808-1@okhdfcbank&pn=Adwaith%20S</span>
+                                <button class="btn btn-sm btn-secondary" onclick="copyUPILink()">
+                                    <i class="fa-regular fa-copy"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: UPI Scanner Simulator -->
+                    <div class="glass-card scanner-card">
+                        <div class="card-title-row">
+                            <h3><i class="fa-solid fa-camera"></i> Interactive QR Scanner</h3>
+                            <span class="badge green">Live Simulator</span>
+                        </div>
+                        <p class="section-desc">Simulate scanning any merchant QR code to trigger immediate payment.</p>
+
+                        <div class="scanner-viewport">
+                            <div class="scan-frame">
+                                <div class="corner top-left"></div>
+                                <div class="corner top-right"></div>
+                                <div class="corner bottom-left"></div>
+                                <div class="corner bottom-right"></div>
+                                <div class="laser-beam"></div>
+                                <i class="fa-solid fa-qrcode bg-watermark"></i>
+                            </div>
+                            <p class="scan-hint">Align QR Code within camera frame</p>
+                        </div>
+
+                        <div class="scanner-demo-actions">
+                            <button class="btn btn-outline btn-block" onclick="simulateScanQR('Cafe Coffee Day', 'ccd@upi', 340)">
+                                <i class="fa-solid fa-mug-hot"></i> Scan Test: Cafe Coffee Day (₹340)
+                            </button>
+                            <button class="btn btn-outline btn-block" onclick="simulateScanQR('Metro Ticket Pass', 'dmrc@upi', 120)">
+                                <i class="fa-solid fa-train"></i> Scan Test: Metro Pass (₹120)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 6: ANALYTICS -->
+            <section id="view-analytics" class="view-section">
+                <div class="dashboard-grid-2col">
+                    <div class="glass-card">
+                        <h3><i class="fa-solid fa-pie-chart"></i> Category Spend Distribution</h3>
+                        <div class="chart-container mt-15">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <h3><i class="fa-solid fa-shield-check"></i> Transfer Health Metrics</h3>
+                        <div class="analytics-metrics-list">
+                            <div class="metric-row">
+                                <span>UPI Success Rate:</span>
+                                <strong class="text-green">99.8%</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Average Processing Time:</span>
+                                <strong>0.4 Seconds</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Total Transactions (30 days):</span>
+                                <strong>42 Transfers</strong>
+                            </div>
+                            <div class="metric-row">
+                                <span>Security Risk Level:</span>
+                                <strong class="text-green"><i class="fa-solid fa-shield-halved"></i> Ultra Secure (SSL 256-bit)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 7: SETTINGS -->
+            <section id="view-settings" class="view-section">
+                <div class="glass-card max-w-700">
+                    <h3><i class="fa-solid fa-sliders"></i> Account & Security Settings</h3>
+                    <form onsubmit="event.preventDefault(); showToast('Settings updated successfully!', 'success');" class="mt-20">
+                        <div class="input-group">
+                            <label>Default Primary Bank Account</label>
+                            <select class="custom-select">
+                                <option>JGM Bank - Primary A/C (•••• 8842)</option>
+                                <option>HDFC Bank Savings (•••• 1042)</option>
+                                <option>SBI Salary Account (•••• 9901)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Primary UPI ID / VPA</label>
+                            <input type="text" value="agneay@jgmbank" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label>UPI Security PIN</label>
+                            <input type="password" value="••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL 1: UPI PIN AUTHENTICATION -->
+    <div id="pin-modal" class="modal-backdrop hidden">
+        <div class="modal-card pin-modal-card">
+            <button class="modal-close-btn" onclick="closePinModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="pin-modal-header">
+                <div class="bank-shield-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3>Enter 4-Digit UPI PIN</h3>
+                <p>Confirm transfer of <strong id="pin-modal-amount" class="text-blue">₹0.00</strong> to <strong id="pin-modal-recipient">User</strong></p>
+            </div>
+
+            <div class="pin-display">
+                <span class="pin-dot"></span>
+                <span class="pin-dot"></span>
+                <span class="pin-dot"></span>
+                <span class="pin-dot"></span>
+            </div>
+
+            <!-- Virtual Keypad -->
+            <div class="virtual-keypad">
+                <button type="button" onclick="inputPinDigit('1')">1</button>
+                <button type="button" onclick="inputPinDigit('2')">2</button>
+                <button type="button" onclick="inputPinDigit('3')">3</button>
+                <button type="button" onclick="inputPinDigit('4')">4</button>
+                <button type="button" onclick="inputPinDigit('5')">5</button>
+                <button type="button" onclick="inputPinDigit('6')">6</button>
+                <button type="button" onclick="inputPinDigit('7')">7</button>
+                <button type="button" onclick="inputPinDigit('8')">8</button>
+                <button type="button" onclick="inputPinDigit('9')">9</button>
+                <button type="button" onclick="clearPin()"><i class="fa-solid fa-trash-can"></i></button>
+                <button type="button" onclick="inputPinDigit('0')">0</button>
+                <button type="button" class="btn-keypad-submit" onclick="submitPinPayment()"><i class="fa-solid fa-check"></i></button>
+            </div>
+            
+            <div id="pin-processing-overlay" class="pin-processing-overlay hidden">
+                <div class="spinner"></div>
+                <p>Authenticating with NPCI UPI Server...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: DIGITAL RECEIPT MODAL -->
+    <div id="receipt-modal" class="modal-backdrop hidden">
+        <div class="modal-card receipt-card">
+            <button class="modal-close-btn no-print" onclick="closeReceiptModal()"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div id="printable-receipt" class="receipt-content">
+                <div class="receipt-header">
+                    <div class="receipt-logo">
+                        <i class="fa-solid fa-vault"></i>
+                        <span>JGM MONEY TRANSFER</span>
+                    </div>
+                    <div class="status-badge success">
+                        <i class="fa-solid fa-circle-check"></i> PAYMENT SUCCESSFUL
+                    </div>
+                </div>
+
+                <div class="receipt-amount-banner">
+                    <span class="label">Amount Paid</span>
+                    <h2 class="amount" id="receipt-amount">₹0.00</h2>
+                </div>
+
+                <div class="receipt-details-grid">
+                    <div class="receipt-row">
+                        <span class="term">Transaction Reference (UTR)</span>
+                        <span class="value bold" id="receipt-utr">JGM202607238912</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="term">Date & Time</span>
+                        <span class="value" id="receipt-datetime">23 July 2026, 11:05 PM</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="term">Paid To (Beneficiary)</span>
+                        <span class="value bold" id="receipt-payee-name">Rahul Sharma</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="term">UPI VPA / Account</span>
+                        <span class="value" id="receipt-payee-vpa">rahul@jgmbank</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="term">Debited From</span>
+                        <span class="value">JGM Primary Account (•••• 8842)</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span class="term">Payment Method</span>
+                        <span class="value" id="receipt-method">UPI Instant Payment</span>
+                    </div>
+                    <div class="receipt-row" id="receipt-note-row">
+                        <span class="term">Note</span>
+                        <span class="value" id="receipt-note">-</span>
+                    </div>
+                </div>
+
+                <div class="receipt-footer">
+                    <div class="receipt-stamp">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Verified NPCI UPI Transaction</span>
+                    </div>
+                    <p class="disclaimer">This is a computer generated bank advice receipt. No physical signature required.</p>
+                </div>
+            </div>
+
+            <div class="receipt-actions no-print">
+                <button class="btn btn-primary" onclick="printReceipt()">
+                    <i class="fa-solid fa-print"></i> Print / Save PDF
+                </button>
+                <button class="btn btn-outline" onclick="shareReceipt()">
+                    <i class="fa-solid fa-share-nodes"></i> Share Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
